@@ -207,20 +207,6 @@
                 });
             });
         };
-            // LISTEN for changes to the status folder to update our sidebar
-            const allStatusesRef = ref(db, 'status');
-            onValue(allStatusesRef, (snapshot) => {
-                const statuses = snapshot.val() || {};
-                const presenceList = document.getElementById('presence-list');
-                presenceList.innerHTML = ""; // Clear list
-                
-                Object.keys(statuses).forEach(user => {
-                    const entry = document.createElement('div');
-                    entry.innerHTML = `<span style="color: #00ff00;">●</span> ${user}`;
-                    presenceList.appendChild(entry);
-                });
-            });
-        };
 
         window.setTarget = (user) => {
             selectedTarget = user;
