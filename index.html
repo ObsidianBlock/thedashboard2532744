@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friend Chat</title>
+    <title>The Dashboard</title>
     <style>
         /* Basic styling to make it not look like 1995 */
         body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
@@ -20,18 +20,40 @@
 </head>
 <body>
 
-    <h2>Private Chat</h2>
-    <div id="chat-box"></div>
+    <h2>The Dashboard Chat</h2>
+    <!-- Login UI -->
+    <div id="login-screen" style="text-align: center; margin-top: 50px;">
+        <h3>Enter Credentials</h3>
+        <input type="text" id="login-user" placeholder="Username"><br><br>
+        <input type="password" id="login-pass" placeholder="Password"><br><br>
+        <button onclick="checkLogin()">Login</button>
+        <p id="login-error" style="color: red;"></p>
+    </div>
     
-    <input type="text" id="username" placeholder="Name" style="width: 80px;">
-    <input type="text" id="message" placeholder="Type a message..." style="width: 200px;">
-    <button onclick="sendMessage()">Send</button>
+    <!-- Chat UI (Hidden by default) -->
+    <div id="main-chat" style="display: none;">
+        <h2 id="welcome-msg"></h2>
+        <div id="chat-box"></div>
+        <input type="text" id="message" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
     <!-- Your Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        const USERS = {
+            “LongSnail”: “f9q11”,
+            “SlyFox”: “t5p65”,
+            “CreepySnake”: “g6b92”,
+            “PerfectHyena”: “p2x53”,
+            “BusyBee”: “h7y14”,
+            “FastDolphin”: “t4n68”,
+            “SmartDog”: “f3o94”,
+            “BigElephant”: “y6h24”
+        };
+        
         // PASTE YOUR CONFIG FROM FIREBASE CONSOLE HERE
         const firebaseConfig = {
             databaseURL: "https://the-dashboard-2532744-default-rtdb.firebaseio.com",
@@ -56,6 +78,36 @@
 
         const chatBox = document.getElementById('chat-box');
 
+        let currentUser = "";
+
+        window.checkLogin = () => {
+            const user = document.getElementById('login-user').value.toLowerCase();
+            const pass = document.getElementById('login-pass').value;
+        
+            if (USERS[user] && USERS[user] === pass) {
+                // Success!
+                currentUser = user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-chat').style.display = 'block';
+                document.getElementById('welcome-msg').innerText = `Logged in as: ${user}`;
+            } else {
+                document.getElementById('login-error').innerText = "Invalid username or password.";
+            }
+        };
+        
+        // Update your sendMessage function to use the logged-in user
+        window.sendMessage = () => {
+            const text = document.getElementById('message').value;
+            if (text.trim() !== "" && currentUser !== "") {
+                push(chatRef, { 
+                    user: currentUser, // Uses the account name
+                    text: text,
+                    timestamp: Date.now()
+                });
+                document.getElementById('message').value = '';
+            }
+        };
+        
         onChildAdded(chatRef, (data) => {
             const msg = data.val();
             const msgElement = document.createElement('p');
