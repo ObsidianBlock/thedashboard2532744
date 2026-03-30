@@ -174,39 +174,39 @@
         let selectedTarget = "all";
 
         window.setupPresence = (username) => {
-    // 1. Define the "addresses" (REFS) first
-    const userStatusRef = ref(db, 'status/' + username);
-    const connectedRef = ref(db, '.info/connected');
-    const allStatusesRef = ref(db, 'status'); // <--- DEFINED FIRST
-
-    // 2. Handle your own connection status
-    onValue(connectedRef, (snap) => {
-        if (snap.val() === true) {
-            set(userStatusRef, "online");
-            onDisconnect(userStatusRef).remove();
-        }
-    });
-
-    // 3. NOW listen for everyone else
-    onValue(allStatusesRef, (snapshot) => {
-        const statuses = snapshot.val() || {};
-        const presenceList = document.getElementById('presence-list');
-        if (!presenceList) return; // Safety check
-
-        presenceList.innerHTML = `<div onclick="setTarget('all')" style="cursor:pointer; color: #fff;">[ Broadcast ]</div>`; 
+            // 1. Define the "addresses" (REFS) first
+            const userStatusRef = ref(db, 'status/' + username);
+            const connectedRef = ref(db, '.info/connected');
+            const allStatusesRef = ref(db, 'status'); // <--- DEFINED FIRST
         
-        Object.keys(statuses).forEach(user => {
-            const isMe = user === window.currentUser;
-            const color = isMe ? "#555" : "#00ff00"; 
-            const entry = document.createElement('div');
-            entry.style.cursor = "pointer";
-            entry.innerHTML = `<span style="color: ${color};">●</span> ${user}`;
-            
-            entry.onclick = () => { if(!isMe) setTarget(user); };
-            presenceList.appendChild(entry);
-        });
-    });
-};
+            // 2. Handle your own connection status
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    set(userStatusRef, "online");
+                    onDisconnect(userStatusRef).remove();
+                }
+            });
+        
+            // 3. NOW listen for everyone else
+            onValue(allStatusesRef, (snapshot) => {
+                const statuses = snapshot.val() || {};
+                const presenceList = document.getElementById('presence-list');
+                if (!presenceList) return; // Safety check
+        
+                presenceList.innerHTML = `<div onclick="setTarget('all')" style="cursor:pointer; color: #fff;">[ Broadcast ]</div>`; 
+                
+                Object.keys(statuses).forEach(user => {
+                    const isMe = user === window.currentUser;
+                    const color = isMe ? "#555" : "#00ff00"; 
+                    const entry = document.createElement('div');
+                    entry.style.cursor = "pointer";
+                    entry.innerHTML = `<span style="color: ${color};">●</span> ${user}`;
+                    
+                    entry.onclick = () => { if(!isMe) setTarget(user); };
+                    presenceList.appendChild(entry);
+                });
+            });
+        };
                 }
             });
         
