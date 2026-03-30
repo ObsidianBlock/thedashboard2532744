@@ -5,17 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Dashboard</title>
     <style>
-        /* Basic styling to make it not look like 1995 */
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        #chat-box { 
-            height: 300px; 
-            overflow-y: scroll; 
-            border: 1px solid #ccc; 
-            background: white; 
-            padding: 10px;
-            margin-bottom: 10px;
+        #chat-box::-webkit-scrollbar {
+            width: 8px;
         }
-        input { padding: 8px; }
+        #chat-box::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #1a1a1a; /* Dark Gray */
+            color: #00ff00; /* Classic Green */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+    
+        #chat-box { 
+            height: 400px; 
+            width: 90%;
+            max-width: 600px;
+            overflow-y: scroll; 
+            border: 2px solid #333; 
+            background: #262626; /* Slightly lighter gray for the box */
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+    
+        /* Message styling */
+        p { margin: 5px 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        b { color: #ff4444; } /* Red for Usernames */
+    
+        input { 
+            background: #333; 
+            border: 1px solid #00ff00; 
+            color: #00ff00; 
+            padding: 10px;
+            margin: 5px;
+            border-radius: 3px;
+        }
+    
+        button { 
+            background: #ff4444; /* Red Button */
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+    
+        button:hover {
+            background: #cc0000;
+        }
+    
+        #login-error { color: #ff4444; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -123,9 +173,10 @@
         onChildAdded(chatRef, (data) => {
             const msg = data.val();
             const msgElement = document.createElement('p');
+            // Using <b> here ensures the CSS we wrote above turns the name Red
             msgElement.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
             chatBox.appendChild(msgElement);
-            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
     </script>
 </body>
