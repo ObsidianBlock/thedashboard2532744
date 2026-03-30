@@ -57,11 +57,24 @@
             chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
         });
 
+        // Change your function definition to this:
         window.sendMessage = () => {
             const user = document.getElementById('username').value || "Anonymous";
             const text = document.getElementById('message').value;
+            
+            console.log("Attempting to send:", text); // Debugging line
+        
             if (text.trim() !== "") {
-                push(chatRef, { user, text });
+                push(chatRef, { 
+                    user: user, 
+                    text: text,
+                    timestamp: Date.now() 
+                }).then(() => {
+                    console.log("Message sent successfully!");
+                }).catch((error) => {
+                    console.error("Firebase Error:", error);
+                });
+                
                 document.getElementById('message').value = '';
             }
         };
