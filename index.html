@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+import { getDatabase, ref, push, onChildAdded, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -109,10 +110,17 @@
     
         <div id="side-menu" class="menu-hidden">
             <h3>Dashboard</h3>
-            <hr border="1" color="#333">
             <p>User: <span id="display-user" style="color:#00ff00;"></span></p>
-            <button onclick="clearChat()" style="font-size: 12px; padding: 5px;">Wipe History</button>
-            <button onclick="logout()" style="margin-top: 10px; font-size: 12px; padding: 5px; background: #555;">Logout</button>
+            
+            <hr border="1" color="#333">
+            
+            <h4>Active Nodes:</h4>
+            <div id="presence-list" style="font-size: 14px; color: #00ff00;">
+                </div>
+        
+            <hr border="1" color="#333">
+            <button onclick="clearChat()">Wipe History</button>
+            <button onclick="logout()">Logout</button>
         </div>
 
         <h2 id="welcome-msg"></h2>
@@ -165,6 +173,36 @@
 
         let currentUser = "";
 
+        window.setupPresence = (username) => {
+            const userStatusRef = ref(db, 'status/' + username);
+            const connectedRef = ref(db, '.info/connected');
+        
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    // We are connected! 
+                    // 1. Set our status to "online"
+                    set(userStatusRef, "online");
+        
+                    // 2. Tell Firebase: "If I vanish, delete this entry"
+                    onDisconnect(userStatusRef).remove();
+                }
+            });
+        
+            // LISTEN for changes to the status folder to update our sidebar
+            const allStatusesRef = ref(db, 'status');
+            onValue(allStatusesRef, (snapshot) => {
+                const statuses = snapshot.val() || {};
+                const presenceList = document.getElementById('presence-list');
+                presenceList.innerHTML = ""; // Clear list
+                
+                Object.keys(statuses).forEach(user => {
+                    const entry = document.createElement('div');
+                    entry.innerHTML = `<span style="color: #00ff00;">●</span> ${user}`;
+                    presenceList.appendChild(entry);
+                });
+            });
+        };
+        
         // Toggle the menu visibility
         window.toggleMenu = () => {
             const menu = document.getElementById('side-menu');
@@ -202,7 +240,8 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('ai-note').style.display = 'none';
                 document.getElementById('main-chat').style.display = 'block';
-                
+
+                window.setupPresence(user);
                 // Set the global currentUser variable we'll use for sending
                 window.currentUser = user; 
                 document.getElementById('welcome-msg').innerText = `Logged in as: ${user}`;
