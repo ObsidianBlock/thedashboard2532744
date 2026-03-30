@@ -89,19 +89,6 @@
         <div id="chat-box"></div>
         <input type="text" id="message" placeholder="Type a message...">
         <button onclick="sendMessage()">Send</button>
-        <button onclick="knowledge()">Enter your knowledge box</button>
-    </div>
-
-    <div id="busybeeknowledge", style="display: none;">
-        <h2>Welcome to your knowledge!</h2>
-        <h3>longsnail = Alive</h3>
-        <h3>slyfox = Alive</h3>
-        <h3>creepysnake = Alive</h3>
-        <h3>perfecthyena = Alive</h3>
-        <h3>fastdolphin = Alive</h3>
-        <h3>smartdog = Alive</h3>
-        <h3>bigelephant = Alive</h3>
-        <h3>Note you will lose access to your knowledge if you lose.</h3>
     </div>
 
     <!-- Your Firebase Script -->
@@ -165,12 +152,6 @@
                 document.getElementById('welcome-msg').innerText = `Logged in as: ${user}`;
             } else {
                 document.getElementById('login-error').innerText = "Invalid username or password.";
-            }
-        };
-
-        window.knowledge = () => {
-            if (window.currentUser === "busybee") {
-                document.getElementById('busybeeknowledge').style.display = 'none';
             }
         };
         
