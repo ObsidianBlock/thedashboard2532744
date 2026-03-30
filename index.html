@@ -171,6 +171,7 @@
         const chatBox = document.getElementById('chat-box');
 
         let currentUser = "";
+        let selectedTarget = "all";
 
         window.setupPresence = (username) => {
             const userStatusRef = ref(db, 'status/' + username);
@@ -184,6 +185,25 @@
         
                     // 2. Tell Firebase: "If I vanish, delete this entry"
                     onDisconnect(userStatusRef).remove();
+            onValue(allStatusesRef, (snapshot) => {
+            const statuses = snapshot.val() || {};
+            const presenceList = document.getElementById('presence-list');
+            presenceList.innerHTML = `<div onclick="setTarget('all')" style="cursor:pointer; color: #fff;">[ Broadcast ]</div>`; 
+            
+            Object.keys(statuses).forEach(user => {
+                const isMe = user === window.currentUser;
+                const color = isMe ? "#555" : "#00ff00"; 
+                const entry = document.createElement('div');
+                entry.style.cursor = "pointer";
+                entry.innerHTML = `<span style="color: ${color};">●</span> ${user}`;
+                
+                // Clicking a name sets the target
+                entry.onclick = () => {
+                    if(!isMe) setTarget(user);
+                };
+                presenceList.appendChild(entry);
+            });
+    });
                 }
             });
         
@@ -200,6 +220,14 @@
                     presenceList.appendChild(entry);
                 });
             });
+        };
+
+        window.setTarget = (user) => {
+            selectedTarget = user;
+            const msgInput = document.getElementById('message');
+            msgInput.placeholder = (user === "all") ? "Message everyone..." : `Whisper to ${user}...`;
+            // Visual feedback
+            msgInput.style.borderColor = (user === "all") ? "#00ff00" : "#ff4444"; 
         };
         
         // Toggle the menu visibility
@@ -252,31 +280,43 @@
         
         // Update your sendMessage function to use the logged-in user
         window.sendMessage = () => {
-            // 1. Get the message text (make sure this ID matches your <input>)
             const messageInput = document.getElementById('message');
             const text = messageInput.value;
         
-            // 2. Use the 'window.currentUser' variable we set during login
-            // instead of trying to find a 'username' element
             if (text.trim() !== "" && window.currentUser) {
                 push(chatRef, { 
                     user: window.currentUser, 
                     text: text,
+                    target: selectedTarget, // Add this!
                     timestamp: Date.now()
                 });
-                messageInput.value = ''; // Clear the input box
-            } else {
-                console.error("Message is empty or User is not logged in!");
+                messageInput.value = '';
+                setTarget('all'); // Reset to public after sending (optional)
             }
         };
         
         onChildAdded(chatRef, (data) => {
             const msg = data.val();
-            const msgElement = document.createElement('p');
-            // Using <b> here ensures the CSS we wrote above turns the name Red
-            msgElement.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
-            chatBox.appendChild(msgElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            // THE FILTER LOGIC
+            const isForMe = msg.target === window.currentUser;
+            const isFromMe = msg.user === window.currentUser;
+            const isPublic = msg.target === "all";
+        
+            if (isPublic || isForMe || isFromMe) {
+                const msgElement = document.createElement('p');
+                
+                // Add a "WHISPER" label if it's private
+                const prefix = isPublic ? "" : `<span style="color:#ff4444; font-size:10px;">[WHISPER]</span> `;
+                
+                msgElement.innerHTML = `${prefix}<b>${msg.user}:</b> ${msg.text}`;
+                
+                // Style whispers differently
+                if (!isPublic) msgElement.style.fontStyle = "italic";
+                
+                chatBox.appendChild(msgElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         });
     </script>
 </body>
