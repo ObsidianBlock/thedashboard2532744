@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1504.84">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;div id="chat-box" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc;"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;input type="text" id="username" placeholder="Name"&gt;</p>
+<p class="p1">&lt;input type="text" id="message" placeholder="Type a message..."&gt;</p>
+<p class="p1">&lt;button onclick="sendMessage()"&gt;Send&lt;/button&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Your Firebase config goes here</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const firebaseConfig = {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>apiKey: "AIzaSyDSuU713_Pl_m8CHlGzTzPWLLSuOMjDrR0",</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>authDomain: "the-dashboard-2532744.firebaseapp.com",</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>projectId: "the-dashboard-2532744",</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>storageBucket: "the-dashboard-2532744.firebasestorage.app",</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>messagingSenderId: "170415567071",</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>appId: "1:170415567071:web:ffb14b0a0fde4ad142f96a"</p>
+<p class="p2"><br></p>
+<p class="p1">};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const app = initializeApp(firebaseConfig);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const db = getDatabase(app);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const chatRef = ref(db, "messages");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// LISTEN for new messages</p>
+<p class="p1"><span class="Apple-converted-space">  </span>onChildAdded(chatRef, (data) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const msg = data.val();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('chat-box').innerHTML += `&lt;p&gt;&lt;b&gt;${msg.user}:&lt;/b&gt; ${msg.text}&lt;/p&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// SEND message function</p>
+<p class="p1"><span class="Apple-converted-space">  </span>window.sendMessage = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const user = document.getElementById('username').value;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const text = document.getElementById('message').value;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>push(chatRef, { user, text });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('message').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1">&lt;/script&gt;</p>
+</body>
+</html>
