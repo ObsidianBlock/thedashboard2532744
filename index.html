@@ -69,6 +69,8 @@
             padding: 10px;
             margin: 5px;
             border-radius: 3px;
+            min-height: 44px; /* The "Gold Standard" for mobile touch targets */
+            font-size: 16px;   /* Prevents iOS from zooming in automatically on focus */
         }
     
         button { 
@@ -79,13 +81,30 @@
             cursor: pointer;
             font-weight: bold;
             border-radius: 3px;
+            min-height: 44px; /* The "Gold Standard" for mobile touch targets */
+            font-size: 16px;   /* Prevents iOS from zooming in automatically on focus */
         }
     
         button:hover {
             background: #cc0000;
         }
-    
+        
         #login-error { color: #ff4444; font-weight: bold; }
+
+        @media (max-width: 600px) {
+            #side-menu {
+                width: 80%; /* Take up most of the screen on mobile */
+                right: -85%; /* Hide it further off-screen */
+            }
+            
+            #side-menu.active {
+                right: 0;
+            }
+        
+            #chat-box {
+                width: 95%; /* Use full width on mobile */
+            }
+        }
     </style>
 </head>
 <body>
@@ -108,7 +127,9 @@
         <div id="menu-icon" onclick="toggleMenu()" style="cursor:pointer; font-size: 24px; position: fixed; top: 10px; right: 20px;">☰</div>
     
         <div id="side-menu" class="menu-hidden">
-            <h3>Dashboard</h3>
+        <div onclick="toggleMenu()" style="cursor:pointer; text-align: right; font-size: 20px; color: #ff4444;">✕ Close</div>
+        
+        <h3>Dashboard</h3>
             <p>User: <span id="display-user" style="color:#00ff00;"></span></p>
             
             <hr border="1" color="#333">
@@ -118,7 +139,6 @@
                 </div>
         
             <hr border="1" color="#333">
-            <button onclick="clearChat()">Wipe History</button>
             <button onclick="logout()">Logout</button>
         </div>
 
@@ -220,24 +240,23 @@
         window.toggleMenu = () => {
             const menu = document.getElementById('side-menu');
             menu.classList.toggle('active');
+        
+            // Optional: Add an "overlay" effect to the chat so it dims when menu is open
+            const chatContainer = document.getElementById('chat-box');
+            if (menu.classList.contains('active')) {
+                chatContainer.style.opacity = "0.3";
+                // If they click the chat while it's dimmed, close the menu
+                chatContainer.onclick = () => toggleMenu(); 
+            } else {
+                chatContainer.style.opacity = "1.0";
+                chatContainer.onclick = null; // Remove the click-to-close listener
+            }
         };
         
         // Log out and clear session
         window.logout = () => {
             localStorage.removeItem("chat_user");
             location.reload(); // Refresh the page to show login screen
-        };
-        
-        // OPTIONAL: Clear the Firebase chat data
-        // WARNING: This deletes everyone's messages!
-        
-        window.clearChat = () => {
-            if (confirm("Are you sure you want to delete all messages?")) {
-                set(chatRef, null).then(() => {
-                    document.getElementById('chat-box').innerHTML = "";
-                    alert("Chat cleared.");
-                });
-            }
         };
         
         window.checkLogin = function() {
