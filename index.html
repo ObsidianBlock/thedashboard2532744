@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Dashboard</title>
     <style>
+        #side-menu {
+            position: fixed;
+            top: 0;
+            right: -250px; /* Hidden off-screen by default */
+            width: 200px;
+            height: 100%;
+            background: #262626;
+            border-left: 2px solid #ff4444; /* Red accent line */
+            padding: 20px;
+            transition: 0.3s; /* Smooth sliding effect */
+            z-index: 1000;
+        }
+        
+        #side-menu.active {
+            right: 0; /* Slide in */
+        }
+        
+        #menu-icon:hover {
+            color: #ff4444;
+        }
         #chat-box::-webkit-scrollbar {
             width: 8px;
         }
@@ -85,11 +105,22 @@
     
     <!-- Chat UI (Hidden by default) -->
     <div id="main-chat" style="display: none;">
+        <div id="menu-icon" onclick="toggleMenu()" style="cursor:pointer; font-size: 24px; position: fixed; top: 10px; right: 20px;">☰</div>
+    
+        <div id="side-menu" class="menu-hidden">
+            <h3>Dashboard</h3>
+            <hr border="1" color="#333">
+            <p>User: <span id="display-user" style="color:#00ff00;"></span></p>
+            <button onclick="clearChat()" style="font-size: 12px; padding: 5px;">Wipe History</button>
+            <button onclick="logout()" style="margin-top: 10px; font-size: 12px; padding: 5px; background: #555;">Logout</button>
+        </div>
+
         <h2 id="welcome-msg"></h2>
         <div id="chat-box"></div>
-        <input type="text" id="message" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+        </div>
+            <input type="text" id="message" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
 
     <!-- Your Firebase Script -->
     <script type="module">
@@ -134,6 +165,31 @@
 
         let currentUser = "";
 
+        // Toggle the menu visibility
+        window.toggleMenu = () => {
+            const menu = document.getElementById('side-menu');
+            menu.classList.toggle('active');
+        };
+        
+        // Log out and clear session
+        window.logout = () => {
+            localStorage.removeItem("chat_user");
+            location.reload(); // Refresh the page to show login screen
+        };
+        
+        // OPTIONAL: Clear the Firebase chat data
+        // WARNING: This deletes everyone's messages!
+        import { set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        
+        window.clearChat = () => {
+            if (confirm("Are you sure you want to delete all messages?")) {
+                set(chatRef, null).then(() => {
+                    document.getElementById('chat-box').innerHTML = "";
+                    alert("Chat cleared.");
+                });
+            }
+        };
+        
         window.checkLogin = function() {
             const userField = document.getElementById('login-user');
             const passField = document.getElementById('login-pass');
