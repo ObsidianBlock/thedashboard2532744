@@ -44,14 +44,14 @@
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const USERS = {
-            “LongSnail”: “f9q11”,
-            “SlyFox”: “t5p65”,
-            “CreepySnake”: “g6b92”,
-            “PerfectHyena”: “p2x53”,
-            “BusyBee”: “h7y14”,
-            “FastDolphin”: “t4n68”,
-            “SmartDog”: “f3o94”,
-            “BigElephant”: “y6h24”
+            "LongSnail": "f9q11",
+            "SlyFox": "t5p65",
+            "CreepySnake": "g6b92",
+            "PerfectHyena": "p2x53",
+            "BusyBee": "h7y14",
+            "FastDolphin": "t4n68",
+            "SmartDog": "f3o94",
+            "BigElephant": "y6h24"
         };
         
         // PASTE YOUR CONFIG FROM FIREBASE CONSOLE HERE
@@ -80,15 +80,20 @@
 
         let currentUser = "";
 
-        window.checkLogin = () => {
-            const user = document.getElementById('login-user').value.toLowerCase();
-            const pass = document.getElementById('login-pass').value;
+        window.checkLogin = function() {
+            const userField = document.getElementById('login-user');
+            const passField = document.getElementById('login-pass');
+            
+            const user = userField.value.toLowerCase();
+            const pass = passField.value;
         
             if (USERS[user] && USERS[user] === pass) {
-                // Success!
-                currentUser = user;
+                // Success logic
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-chat').style.display = 'block';
+                
+                // Set the global currentUser variable we'll use for sending
+                window.currentUser = user; 
                 document.getElementById('welcome-msg').innerText = `Logged in as: ${user}`;
             } else {
                 document.getElementById('login-error').innerText = "Invalid username or password.";
