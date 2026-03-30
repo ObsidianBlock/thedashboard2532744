@@ -71,7 +71,7 @@
 <body>
 
     <h2>The Dashboard Chat</h2>
-    <div class="bottom-right-text">
+    <div id="ai-note" class="bottom-right-text">
         Note this page is partially the output of AI
     </div>
     <!-- Login UI -->
@@ -143,6 +143,7 @@
             if (USERS[user] && USERS[user] === pass) {
                 // Success logic
                 document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('ai-note').style.display = 'none';
                 document.getElementById('main-chat').style.display = 'block';
                 
                 // Set the global currentUser variable we'll use for sending
