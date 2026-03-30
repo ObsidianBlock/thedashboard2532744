@@ -102,14 +102,21 @@
         
         // Update your sendMessage function to use the logged-in user
         window.sendMessage = () => {
-            const text = document.getElementById('message').value;
-            if (text.trim() !== "" && currentUser !== "") {
+            // 1. Get the message text (make sure this ID matches your <input>)
+            const messageInput = document.getElementById('message');
+            const text = messageInput.value;
+        
+            // 2. Use the 'window.currentUser' variable we set during login
+            // instead of trying to find a 'username' element
+            if (text.trim() !== "" && window.currentUser) {
                 push(chatRef, { 
-                    user: currentUser, // Uses the account name
+                    user: window.currentUser, 
                     text: text,
                     timestamp: Date.now()
                 });
-                document.getElementById('message').value = '';
+                messageInput.value = ''; // Clear the input box
+            } else {
+                console.error("Message is empty or User is not logged in!");
             }
         };
         
@@ -120,28 +127,6 @@
             chatBox.appendChild(msgElement);
             chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
         });
-
-        // Change your function definition to this:
-        window.sendMessage = () => {
-            const user = document.getElementById('username').value || "Anonymous";
-            const text = document.getElementById('message').value;
-            
-            console.log("Attempting to send:", text); // Debugging line
-        
-            if (text.trim() !== "") {
-                push(chatRef, { 
-                    user: user, 
-                    text: text,
-                    timestamp: Date.now() 
-                }).then(() => {
-                    console.log("Message sent successfully!");
-                }).catch((error) => {
-                    console.error("Firebase Error:", error);
-                });
-                
-                document.getElementById('message').value = '';
-            }
-        };
     </script>
 </body>
 </html>
