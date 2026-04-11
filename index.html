@@ -5,335 +5,330 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Dashboard</title>
     <style>
-        #side-menu {
-            position: fixed;
-            top: 0;
-            right: -250px; /* Hidden off-screen by default */
-            width: 200px;
-            height: 100%;
-            background: #262626;
-            border-left: 2px solid #ff4444; /* Red accent line */
-            padding: 20px;
-            transition: 0.3s; /* Smooth sliding effect */
-            z-index: 1000;
-        }
-        
-        #side-menu.active {
-            right: 0; /* Slide in */
-        }
-        
-        #menu-icon:hover {
-            color: #ff4444;
-        }
-        #chat-box::-webkit-scrollbar {
-            width: 8px;
-        }
-        #chat-box::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-        #chat-box::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 10px;
-        }
+        /* SCROLLBAR STYLING */
+        #chat-box::-webkit-scrollbar { width: 8px; }
+        #chat-box::-webkit-scrollbar-track { background: #1a1a1a; }
+        #chat-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
         body { 
             font-family: 'Courier New', Courier, monospace; 
-            background-color: #1a1a1a; /* Dark Gray */
-            color: #00ff00; /* Classic Green */
+            background-color: #1a1a1a; 
+            color: #00ff00; 
             display: flex;
             flex-direction: column;
             align-items: center;
             padding-top: 50px;
+            margin: 0;
         }
-    
+
+        /* SIDE MENU */
+        #side-menu {
+            position: fixed;
+            top: 0;
+            right: -260px; 
+            width: 220px;
+            height: 100%;
+            background: #262626;
+            border-left: 2px solid #ff4444;
+            padding: 20px;
+            transition: 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        #side-menu.active { right: 0; }
+
+        /* CHAT BOX */
         #chat-box { 
             height: 400px; 
             width: 90%;
             max-width: 600px;
             overflow-y: scroll; 
             border: 2px solid #333; 
-            background: #262626; /* Slightly lighter gray for the box */
+            background: #262626; 
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
         }
-    
-        /* Message styling */
-        p { margin: 5px 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        b { color: #ff4444; } /* Red for Usernames */
-    
+
+        .dm-banner {
+            background: #333;
+            padding: 10px;
+            width: 90%;
+            max-width: 600px;
+            display: none; /* Hidden until in DM mode */
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px 5px 0 0;
+            border-bottom: 1px solid #ff4444;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+        }
+
+        p { margin: 5px 0; border-bottom: 1px solid #2a2a2a; padding-bottom: 5px; line-height: 1.4; }
+        b { color: #ff4444; } /* Usernames */
+
         input { 
             background: #333; 
             border: 1px solid #00ff00; 
             color: #00ff00; 
             padding: 10px;
-            margin: 5px;
             border-radius: 3px;
-            min-height: 44px; /* The "Gold Standard" for mobile touch targets */
-            font-size: 16px;   /* Prevents iOS from zooming in automatically on focus */
+            font-size: 16px;
+            outline: none;
         }
-    
+
         button { 
-            background: #ff4444; /* Red Button */
+            background: #ff4444; 
             color: white; 
             border: none; 
             padding: 10px 20px; 
             cursor: pointer;
             font-weight: bold;
             border-radius: 3px;
-            min-height: 44px; /* The "Gold Standard" for mobile touch targets */
-            font-size: 16px;   /* Prevents iOS from zooming in automatically on focus */
         }
-    
-        button:hover {
-            background: #cc0000;
+
+        button:hover { background: #cc0000; }
+
+        .player-entry {
+            padding: 8px;
+            margin: 4px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 14px;
         }
-        
-        #login-error { color: #ff4444; font-weight: bold; }
+        .player-entry:hover { background: #333; }
 
         @media (max-width: 600px) {
-            #side-menu {
-                width: 80%; /* Take up most of the screen on mobile */
-                right: -85%; /* Hide it further off-screen */
-            }
-            
-            #side-menu.active {
-                right: 0;
-            }
-        
-            #chat-box {
-                width: 95%; /* Use full width on mobile */
-            }
+            #side-menu { width: 70%; right: -75%; }
+            #chat-box { width: 95%; }
         }
     </style>
 </head>
 <body>
 
-    <h2>The Dashboard Chat</h2>
-    <div id="ai-note" class="bottom-right-text">
-        Note this page is partially the output of AI
-    </div>
-    <!-- Login UI -->
+    <h2 id="view-title">The Dashboard</h2>
+
     <div id="login-screen" style="text-align: center; margin-top: 50px;">
         <h3>Enter Credentials</h3>
         <input type="text" id="login-user" placeholder="Username"><br><br>
         <input type="password" id="login-pass" placeholder="Password"><br><br>
         <button onclick="checkLogin()">Login</button>
-        <p id="login-error" style="color: red;"></p>
+        <p id="login-error" style="color: #ff4444;"></p>
     </div>
-    
-    <!-- Chat UI (Hidden by default) -->
-    <div id="main-chat" style="display: none;">
+
+    <div id="main-chat" style="display: none; width: 100%; max-width: 600px;">
         <div id="menu-icon" onclick="toggleMenu()" style="cursor:pointer; font-size: 24px; position: fixed; top: 10px; right: 20px;">☰</div>
-    
-        <div id="side-menu" class="menu-hidden">
-        <div onclick="toggleMenu()" style="cursor:pointer; text-align: right; font-size: 20px; color: #ff4444;">✕ Close</div>
-        
-        <h3>Side Menu</h3>
-            <p>User: <span id="display-user" style="color:#00ff00;"></span></p>
+
+        <div id="side-menu">
+            <div onclick="toggleMenu()" style="cursor:pointer; text-align: right; font-size: 20px; color: #ff4444;">✕</div>
+            <h3>System Menu</h3>
+            <p style="color: #888;">Logged in: <span id="display-user" style="color:#00ff00;"></span></p>
+            <hr color="#333">
+            <button onclick="switchView('all')" style="width:100%; background: #444; margin-bottom: 10px;">Global Chat</button>
             
-            <hr border="1" color="#333">
+            <h4 style="margin-bottom: 5px;">Contacts:</h4>
+            <div id="player-list"></div>
             
-            <h4>Active Players (click on to private message):</h4>
-            <div id="presence-list" style="font-size: 14px; color: #00ff00;">
-                </div>
-        
-            <hr border="1" color="#333">
-            <button onclick="logout()">Logout</button>
+            <hr color="#333" style="margin-top: 20px;">
+            <button onclick="logout()" style="width:100%;">Logout</button>
         </div>
 
-        <h2 id="welcome-msg"></h2>
+        <div id="dm-banner" class="dm-banner">
+            <span id="dm-target-name">Direct Message</span>
+            <button onclick="switchView('all')" style="padding: 5px 10px; font-size: 12px; background: #555;">Back to Global</button>
+        </div>
+
         <div id="chat-box"></div>
-        <div>
-            <input type="text" id="message" onkeypress="if(event.key === 'Enter') sendMessage()" placeholder="Message Everyone">
+
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="message" style="flex-grow: 1;" onkeypress="if(event.key === 'Enter') sendMessage()" placeholder="Message Everyone">
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
 
-    <!-- Your Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // CONFIGURATION
         const USERS = {
-            "obsidianblocku8c (owner)": "2532744",
-            "longsnail": "f9q11", // Andrew Smith 1
-            "slyfox": "t5p65", // Arianna 1
-            "creepysnake": "g6b92", // Noah K (bad) 1
-            "perfecthyena": "p2x53", // Dexter 2
-            "busybee": "h7y14", // Nammi (knowledgeable) 2
-            "fastdolphin": "t4n68", // Jasper (bad) 2
-            "smartdog": "f3o94", // Mom 3
-            "bigelephant": "y6h24", // Noah Smith 3
-            "largeporcupine": "i0g32", // Cordelia 3
-            "humorousseal": "u6n43", // Dad 4
-            "overjoyedgerbil": "l2b52", // Pake S 4
-            "wigglycat": "z9x08",
-            "luckymink": "r8c23",
-            "brightclam": "v3m74",
-            "bison": "hehe",
-            "mantaray": "hehe",
-            "turtle": "hehe",
-            "gecko": "hehe",
-            "rhino": "hehe"
+            "obsidianblocku8c (owner)": "2532744", "longsnail": "f9q11", "slyfox": "t5p65",
+            "creepysnake": "g6b92", "perfecthyena": "p2x53", "busybee": "h7y14",
+            "fastdolphin": "t4n68", "smartdog": "f3o94", "bigelephant": "y6h24",
+            "largeporcupine": "i0g32", "humorousseal": "u6n43", "overjoyedgerbil": "l2b52",
+            "wigglycat": "z9x08", "luckymink": "r8c23", "brightclam": "v3m74",
+            "bison": "hehe", "mantaray": "hehe", "turtle": "hehe", "gecko": "hehe", "rhino": "hehe"
         };
-        
-        // PASTE YOUR CONFIG FROM FIREBASE CONSOLE HERE
+
         const firebaseConfig = {
             databaseURL: "https://the-dashboard-2532744-default-rtdb.firebaseio.com",
-
             apiKey: "AIzaSyDSuU713_Pl_m8CHlGzTzPWLLSuOMjDrR0",
-        
             authDomain: "the-dashboard-2532744.firebaseapp.com",
-        
             projectId: "the-dashboard-2532744",
-        
             storageBucket: "the-dashboard-2532744.firebasestorage.app",
-        
             messagingSenderId: "170415567071",
-        
             appId: "1:170415567071:web:ffb14b0a0fde4ad142f96a"
-        
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const chatRef = ref(db, "messages");
 
-        const chatBox = document.getElementById('chat-box');
-
+        // STATE
         let currentUser = "";
-        let selectedTarget = "all";
+        let selectedTarget = "all"; 
+        let allMessages = []; 
+        let onlineUsers = {};
 
-        window.setupPresence = (username) => {
-            // 1. Define the "addresses" (REFS) first
-            const userStatusRef = ref(db, 'status/' + username);
+        // LOGIN LOGIC
+        window.checkLogin = function() {
+            const user = document.getElementById('login-user').value.toLowerCase();
+            const pass = document.getElementById('login-pass').value;
+
+            if (USERS[user] && USERS[user] === pass) {
+                currentUser = user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-chat').style.display = 'block';
+                document.getElementById('display-user').innerText = user;
+                
+                initPresence(user);
+            } else {
+                document.getElementById('login-error').innerText = "Invalid credentials.";
+            }
+        };
+
+        // PRESENCE & LIST FILTERING
+        function initPresence(user) {
+            const statusRef = ref(db, 'status/' + user);
             const connectedRef = ref(db, '.info/connected');
-            const allStatusesRef = ref(db, 'status'); // <--- DEFINED FIRST
-        
-            // 2. Handle your own connection status
+            const allStatusesRef = ref(db, 'status');
+
             onValue(connectedRef, (snap) => {
                 if (snap.val() === true) {
-                    set(userStatusRef, "online");
-                    onDisconnect(userStatusRef).remove();
+                    set(statusRef, "online");
+                    onDisconnect(statusRef).remove();
                 }
             });
-        
-            // 3. NOW listen for everyone else
+
             onValue(allStatusesRef, (snapshot) => {
-                const statuses = snapshot.val() || {};
-                const presenceList = document.getElementById('presence-list');
-                if (!presenceList) return; // Safety check
-        
-                presenceList.innerHTML = `<div onclick="setTarget('all')" style="cursor:pointer; color: #fff;">[ Broadcast ]</div>`; 
-                
-                Object.keys(statuses).forEach(user => {
-                    const isMe = user === window.currentUser;
-                    const color = isMe ? "#555" : "#00ff00"; 
-                    const entry = document.createElement('div');
-                    entry.style.cursor = "pointer";
-                    entry.innerHTML = `<span style="color: ${color};">●</span> ${user}`;
-                    
-                    entry.onclick = () => { if(!isMe) setTarget(user); };
-                    presenceList.appendChild(entry);
-                });
+                onlineUsers = snapshot.val() || {};
+                updatePlayerList();
             });
+        }
+
+        function updatePlayerList() {
+            const listDiv = document.getElementById('player-list');
+            listDiv.innerHTML = "";
+
+            // Find history from the persistent message cache
+            const interactedUsers = new Set();
+            allMessages.forEach(m => {
+                if (m.target !== "all") {
+                    if (m.user === currentUser) interactedUsers.add(m.target);
+                    if (m.target === currentUser) interactedUsers.add(m.user);
+                }
+            });
+
+            Object.keys(USERS).forEach(name => {
+                if (name === currentUser) return;
+
+                const isOnline = onlineUsers[name] === "online";
+                const hasHistory = interactedUsers.has(name);
+
+                if (isOnline || hasHistory) {
+                    const div = document.createElement('div');
+                    div.className = "player-entry";
+                    const color = isOnline ? "#00ff00" : "#555";
+                    const statusIcon = isOnline ? "●" : "○";
+                    
+                    div.innerHTML = `<span style="color:${color}">${statusIcon}</span> ${name}`;
+                    div.onclick = () => { switchView(name); toggleMenu(); };
+                    listDiv.appendChild(div);
+                }
+            });
+        }
+
+        // VIEW SWAPPING (DM vs GLOBAL)
+        window.switchView = function(target) {
+            selectedTarget = target;
+            const chatBox = document.getElementById('chat-box');
+            const banner = document.getElementById('dm-banner');
+            const title = document.getElementById('view-title');
+            const input = document.getElementById('message');
+
+            chatBox.innerHTML = ""; // Clear current view
+
+            if (target === "all") {
+                banner.style.display = "none";
+                title.innerText = "Global Chat";
+                input.placeholder = "Message Everyone";
+            } else {
+                banner.style.display = "flex";
+                document.getElementById('dm-target-name').innerText = `DM: ${target}`;
+                title.innerText = "Direct Messages";
+                input.placeholder = `Message ${target}...`;
+            }
+
+            // Re-render only relevant messages from cache
+            allMessages.forEach(msg => renderMessage(msg));
         };
 
-        window.setTarget = (user) => {
-            selectedTarget = user;
-            const msgInput = document.getElementById('message');
-            msgInput.placeholder = (user === "all") ? "Message everyone..." : `Whisper to ${user}...`;
-            // Visual feedback
-            msgInput.style.borderColor = (user === "all") ? "#00ff00" : "#ff4444"; 
-        };
-        
-        // Toggle the menu visibility
-        window.toggleMenu = () => {
-            const menu = document.getElementById('side-menu');
-            menu.classList.toggle('active');
-        
-            // Optional: Add an "overlay" effect to the chat so it dims when menu is open
-            const chatContainer = document.getElementById('chat-box');
-            if (menu.classList.contains('active')) {
-                chatContainer.style.opacity = "0.3";
-                // If they click the chat while it's dimmed, close the menu
-                chatContainer.onclick = () => toggleMenu(); 
-            } else {
-                chatContainer.style.opacity = "1.0";
-                chatContainer.onclick = null; // Remove the click-to-close listener
-            }
-        };
-        
-        // Log out and clear session
-        window.logout = () => {
-            localStorage.removeItem("chat_user");
-            location.reload(); // Refresh the page to show login screen
-        };
-        
-        window.checkLogin = function() {
-            const userField = document.getElementById('login-user');
-            const passField = document.getElementById('login-pass');
-            
-            const user = userField.value.toLowerCase();
-            const pass = passField.value;
-        
-            if (USERS[user] && USERS[user] === pass) {
-                // Success logic
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('ai-note').style.display = 'none';
-                document.getElementById('main-chat').style.display = 'block';
+        function renderMessage(msg) {
+            const chatBox = document.getElementById('chat-box');
+            let shouldShow = false;
 
-                window.setupPresence(user);
-                // Set the global currentUser variable we'll use for sending
-                window.currentUser = user; 
-                document.getElementById('welcome-msg').innerText = `Logged in as: ${user}`;
-                // Inside your checkLogin success block:
-                document.getElementById('display-user').innerText = user;
+            if (selectedTarget === "all") {
+                if (msg.target === "all") shouldShow = true;
             } else {
-                document.getElementById('login-error').innerText = "Invalid username or password.";
+                // Logic: Message is between Current User and the selected DM partner
+                const isFromPartner = (msg.user === selectedTarget && msg.target === currentUser);
+                const isToPartner = (msg.user === currentUser && msg.target === selectedTarget);
+                if (isFromPartner || isToPartner) shouldShow = true;
             }
-        };
-        
-        // Update your sendMessage function to use the logged-in user
-        window.sendMessage = () => {
-            const messageInput = document.getElementById('message');
-            const text = messageInput.value;
-        
-            if (text.trim() !== "" && window.currentUser) {
-                push(chatRef, { 
-                    user: window.currentUser, 
-                    text: text,
-                    target: selectedTarget, // Add this!
-                    timestamp: Date.now()
-                });
-                messageInput.value = '';
-            }
-        };
-        
-        onChildAdded(chatRef, (data) => {
-            const msg = data.val();
-            
-            // THE FILTER LOGIC
-            const isForMe = msg.target === window.currentUser;
-            const isFromMe = msg.user === window.currentUser;
-            const isPublic = msg.target === "all";
-        
-            if (isPublic || isForMe || isFromMe) {
-                const msgElement = document.createElement('p');
+
+            if (shouldShow) {
+                const p = document.createElement('p');
+                const isPrivate = msg.target !== "all";
+                const label = isPrivate ? `<span style="color:#ff4444; font-size:10px;">[DM]</span> ` : "";
                 
-                // Add a "WHISPER" label if it's private
-                const prefix = isPublic ? "" : `<span style="color:#ff4444; font-size:10px;">[WHISPER]</span> `;
+                p.innerHTML = `${label}<b>${msg.user}:</b> ${msg.text}`;
+                if (isPrivate) p.style.fontStyle = "italic";
                 
-                msgElement.innerHTML = `${prefix}<b>${msg.user}:</b> ${msg.text}`;
-                
-                // Style whispers differently
-                if (!isPublic) msgElement.style.fontStyle = "italic";
-                
-                chatBox.appendChild(msgElement);
+                chatBox.appendChild(p);
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
+        }
+
+        // SEND LOGIC
+        window.sendMessage = () => {
+            const input = document.getElementById('message');
+            const text = input.value.trim();
+            if (text && currentUser) {
+                push(chatRef, {
+                    user: currentUser,
+                    text: text,
+                    target: selectedTarget,
+                    timestamp: Date.now()
+                });
+                input.value = "";
+            }
+        };
+
+        // GLOBAL MESSAGE LISTENER
+        onChildAdded(chatRef, (data) => {
+            const msg = data.val();
+            allMessages.push(msg); // Add to persistent session cache
+            renderMessage(msg);    // Attempt to display
+            updatePlayerList();    // Refresh sidebar in case history was just created
         });
+
+        window.toggleMenu = () => {
+            document.getElementById('side-menu').classList.toggle('active');
+        };
+
+        window.logout = () => location.reload();
     </script>
 </body>
 </html>
