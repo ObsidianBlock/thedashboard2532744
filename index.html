@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <title>The Dashboard</title>
+    <title>The Dashboard Elite</title>
     <style>
-        /* SCROLLBAR STYLING */
-        #chat-box::-webkit-scrollbar { width: 8px; }
-        #chat-box::-webkit-scrollbar-track { background: #1a1a1a; }
-        #chat-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        /* SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
 
         body { 
             font-family: 'Courier New', Courier, monospace; 
@@ -18,15 +17,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 50px;
+            padding-top: 60px;
             margin: 0;
             overflow-x: hidden;
         }
 
-        /* NOTIFICATION POPUP */
+        /* NOTIFICATIONS */
         #notification-container {
             position: fixed;
-            top: 20px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
@@ -37,41 +36,80 @@
         .toast {
             background: #ff4444;
             color: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             cursor: pointer;
-            animation: slideDown 0.4s ease-out;
             border-left: 5px solid #fff;
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* SIDE MENU */
-        #side-menu {
+        /* SIDE PANELS */
+        .side-panel {
             position: fixed;
             top: 0;
-            right: -260px; 
-            width: 220px;
-            height: 100%;
+            height: 100vh; /* Use full viewport height */
             background: #262626;
-            border-left: 2px solid #ff4444;
             padding: 20px;
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            overflow-y: auto;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column; /* Allows internal scrolling to work better */
         }
-        #side-menu.active { right: 0; }
 
-        /* CHAT BOX */
+        #side-menu-right { right: -260px; width: 250px; border-left: 2px solid #ff4444; }
+        #side-menu-left { left: -310px; width: 300px; border-right: 2px solid #00ff00; }
+
+        #side-menu-right.active { right: 0; }
+        #side-menu-left.active { left: 0; }
+
+        /* FIX: SCROLLABLE AREAS INSIDE SIDEBARS */
+        #player-list {
+            overflow-y: auto;
+            flex-grow: 1; /* Takes up remaining space */
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1100;
+            background: #262626;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+        #btn-left { left: 15px; color: #00ff00; }
+        #btn-right { right: 15px; color: #ff4444; }
+
+        /* NOTES AREA */
+        #notes-area {
+            width: 100%;
+            flex-grow: 1; /* Fills sidebar */
+            background: #1a1a1a;
+            color: #00ff00;
+            border: 1px solid #333;
+            padding: 10px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        /* CHAT COMPONENTS */
         #chat-box { 
-            height: 400px; 
+            height: 450px; 
             width: 90%;
-            max-width: 600px;
+            max-width: 650px;
             overflow-y: scroll; 
             border: 2px solid #333; 
             background: #262626; 
@@ -84,7 +122,7 @@
             background: #333;
             padding: 10px;
             width: 90%;
-            max-width: 600px;
+            max-width: 650px;
             display: none; 
             justify-content: space-between;
             align-items: center;
@@ -94,51 +132,44 @@
             box-sizing: border-box;
         }
 
-        p { margin: 5px 0; border-bottom: 1px solid #2a2a2a; padding-bottom: 5px; }
+        p { margin: 8px 0; border-bottom: 1px solid #2a2a2a; padding-bottom: 5px; word-wrap: break-word; }
         b { color: #ff4444; }
 
-        input { 
-            background: #333; 
-            border: 1px solid #00ff00; 
-            color: #00ff00; 
-            padding: 10px;
-            border-radius: 3px;
+        input, button { 
+            padding: 12px;
+            border-radius: 4px;
             font-size: 16px;
+            border: none;
             outline: none;
         }
 
-        button { 
-            background: #ff4444; 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 3px;
-        }
+        input { background: #333; border: 1px solid #00ff00; color: #00ff00; }
+        button { background: #ff4444; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #cc0000; }
 
         .player-entry {
-            padding: 10px;
-            margin: 5px 0;
+            padding: 12px;
+            margin: 6px 0;
             cursor: pointer;
             border-radius: 4px;
-            background: #222;
+            background: #1e1e1e;
             font-size: 14px;
+            border: 1px solid #333;
+            display: block; /* Ensures full width clicking */
         }
-        .player-entry:hover { background: #333; }
         
         .unread-tag {
             background: #ff4444;
             color: white;
             font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 3px;
+            padding: 2px 6px;
+            border-radius: 10px;
             float: right;
-            font-weight: bold;
         }
 
         @media (max-width: 600px) {
-            #side-menu { width: 75%; right: -80%; }
+            #side-menu-left { width: 85%; left: -90%; }
+            #side-menu-right { width: 80%; right: -85%; }
             #chat-box { width: 95%; }
         }
     </style>
@@ -149,40 +180,46 @@
 
     <h2 id="view-title">The Dashboard</h2>
 
+    <div id="btn-left" class="menu-btn" onclick="toggleMenu('left')">✎</div>
+    <div id="btn-right" class="menu-btn" onclick="toggleMenu('right')">☰</div>
+
     <div id="login-screen" style="text-align: center; margin-top: 50px;">
-        <h3>Access Terminal</h3>
+        <h3>Secure Login</h3>
         <input type="text" id="login-user" placeholder="Username"><br><br>
         <input type="password" id="login-pass" placeholder="Password"><br><br>
-        <button onclick="checkLogin()">Login</button>
+        <button onclick="checkLogin()">Initialize Session</button>
         <p id="login-error" style="color: #ff4444;"></p>
     </div>
 
-    <div id="main-chat" style="display: none; width: 100%; max-width: 600px;">
-        <div id="menu-icon" onclick="toggleMenu()" style="cursor:pointer; font-size: 24px; position: fixed; top: 10px; right: 20px;">☰</div>
+    <div id="main-chat" style="display: none; width: 100%; max-width: 650px;">
+        
+        <div id="side-menu-left" class="side-panel">
+            <div onclick="toggleMenu('left')" style="cursor:pointer; text-align: right; color: #00ff00; margin-bottom: 10px;">✕ Close</div>
+            <h3>Personal Notes</h3>
+            <textarea id="notes-area" oninput="handleNoteInput()" placeholder="Write something..."></textarea>
+        </div>
 
-        <div id="side-menu">
-            <div onclick="toggleMenu()" style="cursor:pointer; text-align: right; font-size: 20px; color: #ff4444;">✕</div>
-            <h3>Menu</h3>
-            <p style="color: #888; font-size: 12px;">Logged in: <span id="display-user" style="color:#00ff00;"></span></p>
-            <hr color="#333">
-            <button onclick="switchView('all')" style="width:100%; background: #444; margin-bottom: 10px;">Global Chat</button>
+        <div id="side-menu-right" class="side-panel">
+            <div onclick="toggleMenu('right')" style="cursor:pointer; text-align: right; color: #ff4444; margin-bottom: 10px;">✕ Close</div>
+            <h3>Network</h3>
+            <p style="color: #888; font-size: 12px;">Ident: <span id="display-user" style="color:#00ff00;"></span></p>
+            <hr color="#333" style="width: 100%;">
+            <button onclick="switchView('all')" style="width:100%; background: #444; margin-bottom: 10px; flex-shrink: 0;">Public Feed</button>
+            <h4 style="margin: 10px 0 5px 0; flex-shrink: 0;">Active Threads:</h4>
             
-            <h4 style="margin-bottom: 5px;">Contacts:</h4>
-            <div id="player-list"></div>
-            
-            <hr color="#333" style="margin-top: 20px;">
-            <button onclick="logout()" style="width:100%;">Logout</button>
+            <div id="player-list"></div> <hr color="#333" style="margin-top: 10px; width: 100%; flex-shrink: 0;">
+            <button onclick="logout()" style="width:100%; flex-shrink: 0;">Terminate Session</button>
         </div>
 
         <div id="dm-banner" class="dm-banner">
-            <span id="dm-target-name">Direct Message</span>
-            <button onclick="switchView('all')" style="padding: 5px 10px; font-size: 12px; background: #555;">Back to Global</button>
+            <span id="dm-target-name">Encrypted Channel</span>
+            <button onclick="switchView('all')" style="padding: 5px 10px; font-size: 11px; background: #555;">Exit Channel</button>
         </div>
 
         <div id="chat-box"></div>
 
-        <div style="display: flex; gap: 5px; width: 90%; margin: 0 auto;">
-            <input type="text" id="message" style="flex-grow: 1;" onkeypress="if(event.key === 'Enter') sendMessage()" placeholder="Message Everyone">
+        <div style="display: flex; gap: 8px; width: 95%; margin: 0 auto;">
+            <input type="text" id="message" style="flex-grow: 1;" onkeypress="if(event.key === 'Enter') sendMessage()" placeholder="Broadcast to all...">
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -197,8 +234,7 @@
             "fastdolphin": "t4n68", "smartdog": "f3o94", "bigelephant": "y6h24",
             "largeporcupine": "i0g32", "humorousseal": "u6n43", "overjoyedgerbil": "l2b52",
             "wigglycat": "z9x08", "luckymink": "r8c23", "brightclam": "v3m74",
-            "bison": "hehe", "mantaray": "hehe", "turtle": "hehe", "gecko": "hehe", "rhino": "hehe", "leo": "bot",
-            "lucy": "bot", "alex": "bot", "emmeline": "bot", "adeline": "bot", "geronimo": "bot", "submitbot": "bot"
+            "bison": "hehe", "mantaray": "hehe", "turtle": "hehe", "gecko": "hehe", "rhino": "hehe"
         };
 
         const firebaseConfig = {
@@ -210,12 +246,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const chatRef = ref(db, "messages");
+        const dmSound = new Audio('dm.mp3');
 
         let currentUser = "";
         let selectedTarget = "all"; 
         let allMessages = []; 
         let onlineUsers = {};
-        let unreadFrom = new Set(); // Track users who sent unread DMs
+        let unreadFrom = new Set();
+        let noteTimeout = null;
 
         window.checkLogin = function() {
             const user = document.getElementById('login-user').value.toLowerCase();
@@ -227,9 +265,26 @@
                 document.getElementById('main-chat').style.display = 'block';
                 document.getElementById('display-user').innerText = user;
                 initPresence(user);
+                loadNotes(user);
             } else {
-                document.getElementById('login-error').innerText = "Invalid credentials.";
+                document.getElementById('login-error').innerText = "Auth Failure: Invalid Credentials.";
             }
+        };
+
+        function loadNotes(user) {
+            const notesRef = ref(db, 'notes/' + user);
+            onValue(notesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data !== null) document.getElementById('notes-area').value = data;
+            }, { onlyOnce: true });
+        }
+
+        window.handleNoteInput = () => {
+            clearTimeout(noteTimeout);
+            noteTimeout = setTimeout(() => {
+                const text = document.getElementById('notes-area').value;
+                set(ref(db, 'notes/' + currentUser), text);
+            }, 500);
         };
 
         function initPresence(user) {
@@ -249,7 +304,6 @@
         function updatePlayerList() {
             const listDiv = document.getElementById('player-list');
             listDiv.innerHTML = "";
-
             const interactedUsers = new Set();
             allMessages.forEach(m => {
                 if (m.target !== "all") {
@@ -262,15 +316,13 @@
                 if (name === currentUser) return;
                 const isOnline = onlineUsers[name] === "online";
                 const hasHistory = interactedUsers.has(name);
-
                 if (isOnline || hasHistory) {
                     const div = document.createElement('div');
                     div.className = "player-entry";
                     const statusColor = isOnline ? "#00ff00" : "#555";
-                    const unreadLabel = unreadFrom.has(name) ? `<span class="unread-tag">NEW</span>` : "";
-                    
-                    div.innerHTML = `<span style="color:${statusColor}">●</span> ${name} ${unreadLabel}`;
-                    div.onclick = () => { switchView(name); toggleMenu(); };
+                    const unread = unreadFrom.has(name) ? `<span class="unread-tag">NEW</span>` : "";
+                    div.innerHTML = `<span style="color:${statusColor}">●</span> ${name} ${unread}`;
+                    div.onclick = () => { switchView(name); if(window.innerWidth < 600) toggleMenu('right'); };
                     listDiv.appendChild(div);
                 }
             });
@@ -278,26 +330,23 @@
 
         window.switchView = function(target) {
             selectedTarget = target;
-            unreadFrom.delete(target); // Clear unread status for this person
-            
+            unreadFrom.delete(target); 
             const chatBox = document.getElementById('chat-box');
             const banner = document.getElementById('dm-banner');
             const title = document.getElementById('view-title');
             const input = document.getElementById('message');
 
             chatBox.innerHTML = ""; 
-
             if (target === "all") {
                 banner.style.display = "none";
-                title.innerText = "Global Chat";
-                input.placeholder = "Message Everyone";
+                title.innerText = "Public Feed";
+                input.placeholder = "Broadcast message...";
             } else {
                 banner.style.display = "flex";
-                document.getElementById('dm-target-name').innerText = `DM: ${target}`;
-                title.innerText = "Direct Messages";
-                input.placeholder = `Message ${target}...`;
+                document.getElementById('dm-target-name').innerText = `Secure Channel: ${target}`;
+                title.innerText = "Direct Message";
+                input.placeholder = `Whisper to ${target}...`;
             }
-
             allMessages.forEach(msg => renderMessage(msg));
             updatePlayerList();
         };
@@ -305,73 +354,60 @@
         function renderMessage(msg) {
             const chatBox = document.getElementById('chat-box');
             let shouldShow = false;
-
             if (selectedTarget === "all") {
                 if (msg.target === "all") shouldShow = true;
             } else {
-                const isConversation = (msg.user === selectedTarget && msg.target === currentUser) || 
-                                      (msg.user === currentUser && msg.target === selectedTarget);
-                if (isConversation) shouldShow = true;
+                const isConv = (msg.user === selectedTarget && msg.target === currentUser) || (msg.user === currentUser && msg.target === selectedTarget);
+                if (isConv) shouldShow = true;
             }
 
             if (shouldShow) {
                 const p = document.createElement('p');
                 const isPrivate = msg.target !== "all";
-                const label = isPrivate ? `<span style="color:#ff4444; font-size:10px;">[DM]</span> ` : "";
-                p.innerHTML = `${label}<b>${msg.user}:</b> ${msg.text}`;
-                if (isPrivate) p.style.fontStyle = "italic";
+                p.innerHTML = `${isPrivate ? '<i>[DM]</i> ' : ''}<b>${msg.user}:</b> ${msg.text}`;
+                if (isPrivate) p.style.color = "#ff4444";
                 chatBox.appendChild(p);
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
 
         function showNotification(from, text) {
+            dmSound.play().catch(() => {});
             const container = document.getElementById('notification-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerHTML = `<strong>New DM from ${from}</strong><br>${text.substring(0, 40)}${text.length > 40 ? '...' : ''}`;
-            
-            toast.onclick = () => {
-                switchView(from);
-                toast.remove();
-            };
-
+            toast.innerHTML = `<strong>Incoming: ${from}</strong><br>${text.substring(0, 30)}...`;
+            toast.onclick = () => { switchView(from); toast.remove(); };
             container.appendChild(toast);
-            setTimeout(() => { if(toast) toast.remove(); }, 5000); // Auto hide after 5s
+            setTimeout(() => { if(toast) toast.remove(); }, 5000);
         }
 
         window.sendMessage = () => {
             const input = document.getElementById('message');
             if (input.value.trim() && currentUser) {
-                push(chatRef, {
-                    user: currentUser,
-                    text: input.value,
-                    target: selectedTarget,
-                    timestamp: Date.now()
-                });
+                push(chatRef, { user: currentUser, text: input.value, target: selectedTarget, timestamp: Date.now() });
                 input.value = "";
             }
         };
 
         onChildAdded(chatRef, (data) => {
             const msg = data.val();
-            const isFirstLoad = allMessages.length < 5; // Simple check to avoid spamming old notifications on login
-            
+            const isFresh = allMessages.length > 20; 
             allMessages.push(msg);
-
-            // NOTIFICATION LOGIC
             if (msg.target === currentUser && msg.user !== currentUser) {
                 if (selectedTarget !== msg.user) {
                     unreadFrom.add(msg.user);
-                    if (!isFirstLoad) showNotification(msg.user, msg.text);
+                    if (isFresh) showNotification(msg.user, msg.text);
                 }
             }
-
             renderMessage(msg);
             updatePlayerList();
         });
 
-        window.toggleMenu = () => document.getElementById('side-menu').classList.toggle('active');
+        window.toggleMenu = (side) => {
+            document.getElementById(`side-menu-${side}`).classList.toggle('active');
+        };
+
         window.logout = () => location.reload();
     </script>
 </body>
